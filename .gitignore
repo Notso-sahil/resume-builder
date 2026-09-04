@@ -49,3 +49,7 @@ jobs/
 # Candidate personal resume PDFs & inputs
 *.pdf
 naive_jd.txt
+
+# Legacy specifications and internal notes
+AntiGravity_Resume_Engine_Spec.md
+rules.md
