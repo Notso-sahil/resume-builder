@@ -42,3 +42,6 @@ output/
 .pytest_cache/
 .coverage
 htmlcov/
+
+# Job configurations (local user data)
+jobs/

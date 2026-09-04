@@ -1,3 +1,4 @@
+﻿import json
 from pathlib import Path
 import pytest
 from pydantic import ValidationError
@@ -116,12 +117,34 @@ def test_archival_on_subsequent_run(tmp_path, monkeypatch):
 
 def test_job_config_loading_and_execution(tmp_path, monkeypatch):
     import src.agents.nodes
+    import src.loaders.job_loader
     monkeypatch.setattr(src.agents.nodes, "OUTPUT_DIR", tmp_path)
 
-    # Load naive job config
-    job_cfg = load_job_config("naive")
-    assert job_cfg["jd_analysis"].company_name in ("Naïve", "Naive")
-    assert len(job_cfg["fallback_projects"]) == 3
+    # Create a fixture job config in tmp_path
+    sample_jobs_dir = tmp_path / "jobs"
+    sample_jobs_dir.mkdir()
+    monkeypatch.setattr(src.loaders.job_loader, "JOBS_DIR", sample_jobs_dir)
+
+    job_data = {
+        "company_name": "Acme Corp",
+        "role_title": "AI Systems Engineer",
+        "seniority_level": "Senior",
+        "domain": "Distributed Systems",
+        "primary_languages": ["Python"],
+        "frameworks": ["FastAPI", "PyTorch"],
+        "databases_and_storage": ["Redis"],
+        "infrastructure_and_cloud": ["Docker"],
+        "core_engineering_challenges": ["Concurrency bottleneck"],
+        "target_keywords": ["Python", "FastAPI"],
+        "tailored_summary_override": "Custom summary for Acme.",
+        "fallback_projects": None,
+    }
+    with open(sample_jobs_dir / "acme.json", "w", encoding="utf-8") as f:
+        json.dump(job_data, f)
+
+    # Load job config via loader
+    job_cfg = load_job_config("acme")
+    assert job_cfg["jd_analysis"].company_name == "Acme Corp"
 
     # Run pipeline with job_config in state
     graph = create_resume_graph()
@@ -134,6 +157,6 @@ def test_job_config_loading_and_execution(tmp_path, monkeypatch):
         "critique_history": [],
     })
 
-    assert final_state["company_slug"] == "naive"
-    assert (tmp_path / "naive_resume.tex").exists()
-    assert (tmp_path / "naive_ques.md").exists()
+    assert final_state["company_slug"] == "acme_corp"
+    assert (tmp_path / "acme_corp_resume.tex").exists()
+    assert (tmp_path / "acme_corp_ques.md").exists()
