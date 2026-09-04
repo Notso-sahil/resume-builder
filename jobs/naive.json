@@ -1,0 +1,263 @@
+{
+  "company_name": "Naïve",
+  "role_title": "AI Computing Research Intern (Inference & Agent Systems)",
+  "seniority_level": "Research Intern / Systems Engineer",
+  "domain": "Autonomous Company Builder & LLM Inference Infrastructure",
+  "primary_languages": [
+    "Python",
+    "PyTorch",
+    "CUDA",
+    "C++",
+    "Triton"
+  ],
+  "frameworks": [
+    "vLLM",
+    "TensorRT-LLM",
+    "SGLang",
+    "LangGraph",
+    "FastAPI",
+    "llama.cpp"
+  ],
+  "databases_and_storage": [
+    "Redis",
+    "PostgreSQL",
+    "Kafka",
+    "Qdrant"
+  ],
+  "infrastructure_and_cloud": [
+    "Docker",
+    "Kubernetes",
+    "AWS / GCP Cloud GPUs",
+    "Triton Inference Server",
+    "Ray"
+  ],
+  "core_engineering_challenges": [
+    "Optimizing self-hosted inference through quantization, continuous batching, and speculative decoding",
+    "Minimizing GPU VRAM fragmentation and KV-cache footprint for concurrent multi-turn agent execution",
+    "Dynamic cost-aware model routing between local quantized models and frontier cloud LLM APIs",
+    "Architecting recursive self-improvement loops that evaluate and refine agent prompts, tooling, and kernels"
+  ],
+  "target_keywords": [
+    "Python",
+    "PyTorch",
+    "Transformer models",
+    "LLMs",
+    "CUDA",
+    "Model inference optimization",
+    "GPU benchmarking",
+    "API usage for LLMs",
+    "High agency",
+    "Push back when appropriate",
+    "Take feedback",
+    "vLLM",
+    "TensorRT-LLM",
+    "SGLang",
+    "llama.cpp",
+    "Speculative decoding",
+    "KV-cache strategy",
+    "Quantization",
+    "Continuous batching",
+    "Tensor & pipeline parallelism",
+    "Model routing",
+    "Agent infrastructure",
+    "Recursive self-improvement loops",
+    "Memory bandwidth",
+    "Throughput vs. latency tradeoffs",
+    "Attention",
+    "Triton",
+    "Cloud GPUs",
+    "FastAPI",
+    "Docker",
+    "Pydantic",
+    "Ray"
+  ],
+  "tailored_summary_override": "High-agency AI Systems Engineer and B.Tech AIML student with proven ability to own research questions end-to-end, take feedback, and push back when appropriate to ship reliable systems. Hands-on production experience architecting agentic frameworks (Synapse) and distributed services using Python, PyTorch, and CUDA. Deep expertise in Transformer models and LLMs, specializing in model inference optimization, GPU benchmarking, speculative decoding, and API usage for LLMs across cloud GPUs and on-prem hardware. Seeking an AI Computing Research Intern role to research and deploy compute-efficient agent infrastructure.",
+  "fallback_projects": [
+    {
+      "project_title": "AetherRoute: Cost-Optimal Model Router & Speculative Decoding Gateway",
+      "archetype": "Core Domain",
+      "high_level_architecture": "Asynchronous LLM inference gateway routing autonomous agent execution steps between local quantized models (AWQ/FP8 via vLLM) and frontier APIs, utilizing speculative decoding with a 1.5B draft model.",
+      "tech_stack": ["Python", "PyTorch", "vLLM", "CUDA", "FastAPI", "Redis", "Docker"],
+      "core_bottleneck": "High frontier API token costs and serialization latency when routing repetitive intermediate agent reasoning trajectories to expensive frontier models.",
+      "technical_solution": "Architected an entropy-gated model routing pipeline paired with multi-tier speculative decoding and prefix KV-cache reuse, executing draft verification passes locally on NVIDIA GPUs.",
+      "quantified_impact_metrics": [
+        "Reduced aggregate agent inference costs by 52%",
+        "Slashed p99 time-to-first-token (TTFT) by 46% (140ms to 75ms)",
+        "Achieved 2.3x higher decoding throughput via 4-bit AWQ speculative drafting"
+      ],
+      "trade_offs": [
+        {
+          "decision": "Selected vLLM PagedAttention with AWQ quantization over raw HuggingFace Transformers inference",
+          "chosen_technology": "vLLM PagedAttention & Continuous Batching",
+          "rejected_technology": "Standard HuggingFace Transformers Pipeline",
+          "justification": "Continuous batching and virtual memory paging prevent out-of-memory crashes and eliminate KV-cache memory fragmentation during multi-turn agent tool loops."
+        },
+        {
+          "decision": "Implemented speculative decoding with a small draft model over unverified speculative sampling",
+          "chosen_technology": "Speculative Decoding (1.5B Draft + 8B Target)",
+          "rejected_technology": "Unverified Fast Sampling",
+          "justification": "Speculative decoding mathematically guarantees exact target distribution parity while doubling decoding speed over memory-bandwidth bound generation."
+        }
+      ],
+      "failure_modes": [
+        {
+          "scenario": "Draft model hallucination drift causing acceptance rate degradation (<40%) under complex reasoning tasks.",
+          "impact": "Speculative verification overhead exceeding target model forward pass time, resulting in latency regressions.",
+          "mitigation_strategy": "Implemented an adaptive acceptance rate governor that dynamically bypasses speculative drafting when acceptance drops below 55%, restoring standard autoregression."
+        }
+      ],
+      "xyz_bullets": [
+        "Architected a speculative decoding inference gateway using PyTorch and vLLM, slashing p99 time-to-first-token (TTFT) by 46% (140ms to 75ms), by implementing a local 1.5B draft model on NVIDIA CUDA GPUs.",
+        "Engineered an entropy-gated model routing pipeline optimizing API usage for LLMs, reducing frontier LLM API costs by 52%, by dynamically dispatching low-uncertainty agent steps to local quantized checkpoints.",
+        "Optimized KV-cache strategy and continuous batching via vLLM PagedAttention, increasing model inference optimization throughput by 210% (45 to 140 streams/GPU), by eliminating VRAM fragmentation.",
+        "Benchmarked FP8 and INT4 AWQ quantization across TensorRT-LLM and SGLang engines, maintaining 99.2% benchmark accuracy while cutting peak GPU VRAM by 48%, by calibrating activation outliers."
+      ],
+      "interview_defense_qna": [
+        {
+          "question": "How does speculative decoding achieve a speedup without degrading model output quality?",
+          "answer": "A lightweight draft model generates K speculative tokens in parallel. The large target model then evaluates all K tokens in a single forward pass using modified causal masks. Tokens are accepted or rejected via modified rejection sampling, which mathematically guarantees the final output distribution matches the target model exactly."
+        },
+        {
+          "question": "How do you determine when to route an agent prompt to a local model versus a frontier API?",
+          "answer": "We compute normalized log-probability entropy over the first 5 generated tokens. If entropy is below a calibrated threshold (low uncertainty/routine tool call), execution proceeds on the local 8B model. If entropy exceeds the threshold or intent classification flags multi-step reasoning, requests route to the frontier API."
+        },
+        {
+          "question": "Why use AWQ quantization instead of GPTQ or standard INT8?",
+          "answer": "Activation-aware Weight Quantization (AWQ) protects salient 1% weight channels based on activation magnitudes rather than weight magnitudes alone, preserving reasoning benchmarks with almost zero perplexity loss compared to uncalibrated quantization."
+        },
+        {
+          "question": "What is the memory bandwidth bottleneck during transformer decoding?",
+          "answer": "Autoregressive decoding is memory-bandwidth bound (arithmetic intensity < 1 FLOP/byte) because every single token generation requires loading all model parameters and previous KV-caches from GPU HBM into SRAM. Continuous batching increases arithmetic intensity by reusing loaded weights across multiple parallel queries."
+        },
+        {
+          "question": "How did you benchmark the 46% TTFT reduction?",
+          "answer": "We simulated 2,000 synthetic multi-turn agent sessions using an asynchronous locust benchmark harness against a cluster of NVIDIA L40S GPUs, comparing p50, p95, and p99 latency distributions with and without speculative decoding enabled."
+        }
+      ]
+    },
+    {
+      "project_title": "FleetVRAM: Pipelined Agent Orchestrator & Multi-GPU Cache Coordinator",
+      "archetype": "Distributed Systems",
+      "high_level_architecture": "Distributed execution fabric coordinating fleets of thousands of concurrent autonomous agents across multi-GPU clusters, featuring Radix-tree prefix KV-cache reuse and disaggregated prefill/decode worker pools.",
+      "tech_stack": ["Python", "PyTorch", "CUDA", "Ray", "Kafka", "Redis", "Docker", "Triton"],
+      "core_bottleneck": "Duplicate system prompt prefill computation across thousands of parallel agents and VRAM exhaustion during concurrent multi-agent tool execution.",
+      "technical_solution": "Architected Radix-tree prefix caching across distributed worker nodes and decoupled prefill/decode disaggregated serving using partitioned Kafka event streams.",
+      "quantified_impact_metrics": [
+        "Coordinated 12,000 concurrent agent execution loops with zero VRAM OOM crashes",
+        "Cut prefill phase compute latency by 64% through distributed prefix cache hits",
+        "Lowered cluster GPU idle power consumption by 32% via dynamic batch scheduling"
+      ],
+      "trade_offs": [
+        {
+          "decision": "Adopted disaggregated prefill and decode clusters over monolithic collocated GPU nodes",
+          "chosen_technology": "Disaggregated Prefill/Decode Architecture",
+          "rejected_technology": "Collocated Monolithic GPU Serving",
+          "justification": "Prefill is compute-bound (GEMM) while token decoding is memory-bandwidth bound (GEMV). Disaggregating them isolates bursty prompt prefills from delaying ongoing low-latency decoding streams."
+        },
+        {
+          "decision": "Selected Ray distributed actor pools over standard Celery queues",
+          "chosen_technology": "Ray Actor Mesh with GPU Affinity",
+          "rejected_technology": "Celery + RabbitMQ Workers",
+          "justification": "Ray natively supports GPU resource scheduling, zero-copy shared memory plasma store, and sub-millisecond task dispatch critical for high-concurrency model serving."
+        }
+      ],
+      "failure_modes": [
+        {
+          "scenario": "GPU worker silent kernel deadlock during heavy multi-head attention execution.",
+          "impact": "Stalled request queues and lost agent execution state.",
+          "mitigation_strategy": "Configured CUDA stream event heartbeats and asynchronous IPC health checks that automatically evacuate and replay agent states to hot-standby GPUs within 120ms."
+        }
+      ],
+      "xyz_bullets": [
+        "Architected a distributed agent infrastructure orchestrator using Python and Ray, scaling concurrent autonomous agents task execution to 12,000 active workers, by implementing disaggregated prefill/decode GPU worker pools.",
+        "Engineered Radix-tree prefix KV-cache sharing across Triton inference clusters, slashing duplicate prompt prefill latency by 64%, by caching immutable system prompt attention states in GPU HBM.",
+        "Partitioned Kafka event topics across 32 consumer replicas, reducing inter-agent message queuing latency by 41% (38ms to 22ms), by eliminating head-of-line blocking in agent tool-calling channels.",
+        "Profiled multi-GPU memory bandwidth and tensor parallelism utilizing NVIDIA Nsight Systems, eliminating 38% PCIe bus communication overhead, by overlapping tensor parallel communication with compute kernels."
+      ],
+      "interview_defense_qna": [
+        {
+          "question": "How does Radix-tree prefix caching work in multi-agent systems?",
+          "answer": "Agents share identical large system prompts (company guidelines, tool definitions). A Radix tree matches prompt tokens hierarchically; matching prefix KV blocks are reused directly from GPU memory, completely skipping the compute-heavy prefill attention phase."
+        },
+        {
+          "question": "Why is disaggregated prefill/decode advantageous over traditional tensor parallelism?",
+          "answer": "In monolithic serving, a large 4,000-token prompt prefill locks up GPU SMs, causing all active token-generation streams to pause. Disaggregating prefill nodes and decode nodes allows prefills to run in parallel while decode nodes emit tokens steadily at sub-30ms intervals."
+        },
+        {
+          "question": "How do you overlap tensor parallel communication with compute kernels?",
+          "answer": "We pipeline AllReduce operations across tensor parallel ranks by breaking GEMM outputs into tiles and scheduling non-blocking NCCL AllReduce collectives on high-priority CUDA streams concurrently with subsequent layer computations."
+        },
+        {
+          "question": "How do you prevent cache drift when agent tool schemas change dynamically?",
+          "answer": "Every tool schema in the system prompt is assigned a cryptographic SHA-256 hash. Any modification to a tool definition automatically purges the corresponding sub-branch in the Radix cache, triggering fresh prefill computation."
+        },
+        {
+          "question": "What is the primary trade-off when tuning chunked prefill batch sizes?",
+          "answer": "Chunked prefill splits large prompts into chunks of e.g. 512 tokens. Smaller chunks reduce decoding pause times for other concurrent requests, but increase total prefill time due to reduced GPU tensor core utilization."
+        }
+      ]
+    },
+    {
+      "project_title": "AutoEvals-MCP: Autonomous Agent Self-Improvement & GPU Kernel Profiling Engine",
+      "archetype": "DevTools / Infra",
+      "high_level_architecture": "Model Context Protocol (MCP) telemetry server and autonomous evaluation harness that profiles GPU kernel utilization, detects agent tool failures, and executes recursive prompt optimization loops.",
+      "tech_stack": ["Python", "PyTorch", "CUDA", "Triton", "MCP SDK", "Prometheus", "Docker"],
+      "core_bottleneck": "Manual prompt engineering bottlenecks and unobservable memory leaks in custom CUDA kernels across iterative agent reasoning cycles.",
+      "technical_solution": "Designed an MCP server exposing live GPU memory profiling tools, automated LLM-as-a-judge evaluation pipelines, and genetic prompt mutation algorithms that optimize agent reliability.",
+      "quantified_impact_metrics": [
+        "Improved autonomous agent task success rates from 68% to 92.4%",
+        "Reduced prompt token overhead by 36% through automated context pruning",
+        "Uncovered and resolved 4 critical CUDA memory leaks in custom attention bindings"
+      ],
+      "trade_offs": [
+        {
+          "decision": "Adopted Model Context Protocol (MCP) standard over custom proprietary telemetry REST APIs",
+          "chosen_technology": "Model Context Protocol (MCP) Architecture",
+          "rejected_technology": "Custom proprietary REST Endpoints",
+          "justification": "MCP standardizes tool schemas, resource polling, and agent discovery across IDEs, Claude, and local runtime hosts with zero client-side glue code."
+        },
+        {
+          "decision": "Enforced deterministic rule-based evaluation gates alongside LLM-as-a-judge scoring",
+          "chosen_technology": "Hybrid Deterministic + LLM-Judge Evaluation",
+          "rejected_technology": "Pure LLM-as-a-Judge Scoring",
+          "justification": "Pure LLM judges suffer from position bias, score inflation, and non-deterministic regression. Deterministic assertions guarantee consistent benchmark validity."
+        }
+      ],
+      "failure_modes": [
+        {
+          "scenario": "LLM judge score saturation or circular prompt mutations degrading edge-case reasoning.",
+          "impact": "Agent prompts over-indexed on simple benchmark cases while failing production edge cases.",
+          "mitigation_strategy": "Enforced strict golden eval test set immutability and automatic regression rollbacks if core benchmark assertions drop by >0.5%."
+        }
+      ],
+      "xyz_bullets": [
+        "Architected an MCP evaluation server in Python and PyTorch, accelerating agent GPU benchmarking iterations by 75% (8 hours to 2 hours), by exposing real-time profiling tools to autonomous agents.",
+        "Engineered Pydantic schema validation into recursive prompt self-improvement loops, increasing agent task completion accuracy from 68% to 92.4%, by validating candidate prompts against golden evals.",
+        "Profiled custom Triton GPU attention kernels using PyTorch Profiler, cutting kernel execution latency by 42% and fixing 4 memory leaks, by replacing redundant host-to-device tensor memory copies.",
+        "Automated continuous integration regression suites with Docker and Prometheus, monitoring tool call latencies across 50,000 daily agent executions with sub-3ms telemetry collection overhead."
+      ],
+      "interview_defense_qna": [
+        {
+          "question": "Why adopt the Model Context Protocol (MCP) instead of building standard REST APIs?",
+          "answer": "MCP provides a standardized protocol for exposing tools, prompts, and resources to AI agents, enabling plug-and-play interoperability across developer IDEs and runtime agent orchestrators without bespoke client libraries."
+        },
+        {
+          "question": "How did recursive prompt self-improvement loops increase task accuracy to 92.4%?",
+          "answer": "Candidate prompts underwent genetic variation (rephrasing constraints, re-ordering few-shot examples, pruning redundant instructions). Each variant was evaluated across 200 synthetic test cases; only variants achieving Pareto-optimal accuracy and token efficiency were promoted."
+        },
+        {
+          "question": "How did you identify the CUDA memory leaks in custom attention bindings?",
+          "answer": "We leveraged PyTorch's torch.cuda.memory._record_memory_history() alongside NVIDIA Nsight Systems to trace allocated CUDA memory addresses across 10,000 iterations, identifying uncollected intermediate tensor allocations in custom Python C-extension wrappers."
+        },
+        {
+          "question": "How does Triton kernel compilation differ from writing raw CUDA C++?",
+          "answer": "Triton allows developers to write high-performance GPU kernels in Python at block-level granularity, with an LLVM-based compiler automatically handling thread synchronization, memory coalescing, and register allocation that traditionally required hundreds of lines of CUDA C++."
+        },
+        {
+          "question": "How do you guard against prompt injection during autonomous agent self-improvement?",
+          "answer": "All candidate prompt mutations run inside an isolated sandbox container with restricted network egress, where output tokens are strictly validated against Pydantic schema contracts before being accepted into the evaluation registry."
+        }
+      ]
+    }
+  ]
+}

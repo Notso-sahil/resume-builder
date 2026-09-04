@@ -1,0 +1,55 @@
+{
+  "company_name": "Pindrop",
+  "role_title": "AI Engineering Intern",
+  "seniority_level": "Intern",
+  "domain": "Identity Security, AI Agents & Internal Engineering Operations",
+  "primary_languages": [
+    "Python",
+    "SQL",
+    "Bash",
+    "Git"
+  ],
+  "frameworks": [
+    "LangGraph",
+    "FastAPI",
+    "Pydantic",
+    "PyTorch",
+    "LangChain"
+  ],
+  "databases_and_storage": [
+    "Vector Databases (Qdrant/Pinecone)",
+    "PostgreSQL",
+    "Redis",
+    "AWS S3"
+  ],
+  "infrastructure_and_cloud": [
+    "AWS (Lambda, S3, SageMaker)",
+    "Docker",
+    "CI/CD (GitHub Actions)",
+    "GCP"
+  ],
+  "core_engineering_challenges": [
+    "Building resilient AI agent orchestration pipelines with automatic retry and error recovery",
+    "Scalable vector indexing and retrieval for voice biometric identity verification",
+    "Streamlining developer tooling and internal API integrations using modern LLM tooling"
+  ],
+  "target_keywords": [
+    "Python",
+    "FastAPI",
+    "LangGraph",
+    "LangChain",
+    "RAG",
+    "LLMs",
+    "Vector Database",
+    "Qdrant",
+    "PostgreSQL",
+    "Redis",
+    "Docker",
+    "AWS",
+    "Pydantic",
+    "Agentic Systems",
+    "CI/CD"
+  ],
+  "tailored_summary_override": null,
+  "fallback_projects": null
+}
