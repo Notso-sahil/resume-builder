@@ -1,4 +1,4 @@
-import json
+﻿import json
 import re
 from pathlib import Path
 from typing import Optional
@@ -13,15 +13,15 @@ CACHE_PATH = OUTPUT_DIR / "candidate_profile.json"
 def clean_unicode_text(text: str) -> str:
     """Normalizes non-standard typography/dashes/bullets commonly extracted from PDFs."""
     replacements = {
-        "\ufffd": " · ",
+        "\ufffd": " Â· ",
         "\u2013": "-",
         "\u2014": "--",
         "\u2018": "'",
         "\u2019": "'",
         "\u201c": '"',
         "\u201d": '"',
-        "\u2022": "•",
-        "\u00b7": "·",
+        "\u2022": "â€¢",
+        "\u00b7": "Â·",
     }
     for bad, good in replacements.items():
         text = text.replace(bad, good)
@@ -90,14 +90,14 @@ def parse_profile_deterministic(text: str) -> CandidateProfile:
         edu_lines = [l.strip() for l in edu_text.splitlines() if l.strip()]
         if edu_lines:
             degree_line = edu_lines[0]
-            year_match = re.search(r"\b(20\d\d\s*[-–—]\s*(?:20\d\d|Present|Expected|\(Expected\))|\d{4})\b", degree_line)
-            year_range = year_match.group(0) if year_match else "2024 – 2028 (Expected)"
-            clean_degree = re.sub(r"\b(20\d\d\s*[-–—]\s*(?:20\d\d|Present|Expected|\(Expected\))|\d{4})\b", "", degree_line).strip()
+            year_match = re.search(r"\b(20\d\d\s*[-â€“â€”]\s*(?:20\d\d|Present|Expected|\(Expected\))|\d{4})\b", degree_line)
+            year_range = year_match.group(0) if year_match else "2024 â€“ 2028 (Expected)"
+            clean_degree = re.sub(r"\b(20\d\d\s*[-â€“â€”]\s*(?:20\d\d|Present|Expected|\(Expected\))|\d{4})\b", "", degree_line).strip()
 
             institution = edu_lines[1] if len(edu_lines) > 1 else "University"
             details = None
-            if "·" in institution:
-                parts = institution.split("·")
+            if "Â·" in institution:
+                parts = institution.split("Â·")
                 institution = parts[0].strip()
                 details = parts[1].strip()
 
@@ -115,7 +115,7 @@ def parse_profile_deterministic(text: str) -> CandidateProfile:
             EducationEntry(
                 degree="B.Tech in Computer Science / AI",
                 institution="University",
-                year_range="2024 – 2028 (Expected)",
+                year_range="2024 â€“ 2028 (Expected)",
                 details="Undergraduate",
             )
         )
@@ -144,9 +144,9 @@ def parse_profile_deterministic(text: str) -> CandidateProfile:
                 org = parts[1].strip()
 
             bullets = [
-                l.lstrip("•-* ").strip()
+                l.lstrip("â€¢-* ").strip()
                 for l in exp_lines[1:]
-                if l.startswith(("•", "-", "*")) or len(l) > 30
+                if l.startswith(("â€¢", "-", "*")) or len(l) > 30
             ][:3]
             experience_entries.append(
                 ExperienceEntry(
@@ -174,8 +174,8 @@ def parse_profile_deterministic(text: str) -> CandidateProfile:
 def extract_profile_from_pdf(pdf_path: str | Path) -> CandidateProfile:
     """
     Two-step extraction:
-      1. pdfplumber  → raw text string
-      2. LLM / Parser → CandidateProfile (structured output)
+      1. pdfplumber  â†’ raw text string
+      2. LLM / Parser â†’ CandidateProfile (structured output)
 
     Extracted fields: full_name, title, phone, email,
                       linkedin, github, professional_objective, education, experience
@@ -226,13 +226,13 @@ def load_or_extract_profile(pdf_path: str | Path | None) -> Optional[CandidatePr
     """
     Main entry point called from main.py.
 
-    - If output/candidate_profile.json exists → load from cache (no re-extraction)
-    - If pdf_path provided                   → extract and cache
-    - If pdf_path is None                    → return None (renderers use placeholder header)
+    - If output/candidate_profile.json exists â†’ load from cache (no re-extraction)
+    - If pdf_path provided                   â†’ extract and cache
+    - If pdf_path is None                    â†’ return None (renderers use placeholder header)
     """
     if CACHE_PATH.exists():
         try:
-            with open(CACHE_PATH, "r", encoding="utf-8") as f:
+            with open(CACHE_PATH, "r", encoding="utf-8-sig") as f:
                 data = json.load(f)
                 return CandidateProfile(**data)
         except Exception:

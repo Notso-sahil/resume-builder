@@ -1,4 +1,4 @@
-import json
+﻿import json
 from pathlib import Path
 from typing import List, Optional, Dict, Any
 
@@ -25,7 +25,7 @@ def list_available_jobs() -> List[Dict[str, Any]]:
     jobs = []
     for json_file in sorted(JOBS_DIR.glob("*.json")):
         try:
-            with open(json_file, "r", encoding="utf-8") as f:
+            with open(json_file, "r", encoding="utf-8-sig") as f:
                 data = json.load(f)
             jobs.append({
                 "slug": json_file.stem,
@@ -75,7 +75,7 @@ def load_job_config(job_identifier: str | Path) -> Dict[str, Any]:
             f"Job configuration '{job_identifier}' not found in {JOBS_DIR} or as a file."
         )
 
-    with open(target_path, "r", encoding="utf-8") as f:
+    with open(target_path, "r", encoding="utf-8-sig") as f:
         data = json.load(f)
 
     # 1. Parse JDDeconstruction
