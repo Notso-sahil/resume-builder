@@ -45,3 +45,7 @@ htmlcov/
 
 # Job configurations (local user data)
 jobs/
+
+# Candidate personal resume PDFs & inputs
+*.pdf
+naive_jd.txt
