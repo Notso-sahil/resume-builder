@@ -29,8 +29,8 @@
 \addtolength{\oddsidemargin}{-0.5in}
 \addtolength{\evensidemargin}{-0.5in}
 \addtolength{\textwidth}{1.0in}
-\addtolength{\topmargin}{-0.55in}
-\addtolength{\textheight}{1.15in}
+\addtolength{\topmargin}{-0.45in}
+\addtolength{\textheight}{1.0in}
 
 \urlstyle{same}
 
@@ -40,8 +40,8 @@
 
 % Sections formatting
 \titleformat{\section}{
-  \vspace{-5pt}\scshape\raggedright\normalsize
-}{}{0em}{}[\color{black}\titlerule \vspace{-3pt}]
+  \vspace{-2pt}\scshape\raggedright\normalsize
+}{}{0em}{}[\color{black}\titlerule \vspace{-1pt}]
 
 % Ensure generated pdf is machine readable/ATS parsable
 \pdfgentounicode=1
@@ -50,7 +50,7 @@
 % Custom commands
 \newcommand{\resumeItem}[1]{
   \item\small{
-    #1 \vspace{-2.5pt}
+    #1 \vspace{-1pt}
   }
 }
 
@@ -59,7 +59,7 @@
     \begin{tabular*}{0.97\textwidth}[t]{l@{\extracolsep{\fill}}r}
       \textbf{#1} & #2 \\
       \textit{\small#3} & \textit{\small #4} \\
-    \end{tabular*}\vspace{-5pt}
+    \end{tabular*}\vspace{-3pt}
 }
 
 \newcommand{\resumeProjectHeading}[2]{
@@ -70,9 +70,9 @@
 }
 
 \newcommand{\resumeSubHeadingListStart}{\begin{itemize}[leftmargin=0.15in, label={}]}
-\newcommand{\resumeSubHeadingListEnd}{\end{itemize}\vspace{-5pt}}
+\newcommand{\resumeSubHeadingListEnd}{\end{itemize}\vspace{-2pt}}
 \newcommand{\resumeItemListStart}{\begin{itemize}[leftmargin=0.15in, rightmargin=0.1in]}
-\newcommand{\resumeItemListEnd}{\end{itemize}\vspace{-3pt}}
+\newcommand{\resumeItemListEnd}{\end{itemize}\vspace{-1pt}}
 
 %-------------------------------------------
 %%%%%%  RESUME STARTS HERE  %%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -130,7 +130,7 @@
       \textbf{Professional \& Soft Skills}{: {{ soft_skills_list | join(', ') }} }
     }}
  \end{itemize}
-\vspace{-6pt}
+\vspace{-2pt}
 {% endif %}
 
 %-----------TECHNICAL PROJECTS-----------
@@ -138,7 +138,7 @@
     \resumeSubHeadingListStart
       {% for proj in projects %}
       \resumeProjectHeading
-          {\textbf{ {{ proj.project_title }} } $|$ \emph{ {{ proj.tech_stack[:6] | join(', ') }} }}{ {{ proj.archetype }} }
+          {\textbf{ {{ proj.project_title }} } {% if proj.live_link %}$|$ \href{ {{ proj.live_link }} }{\underline{[Live]}} {% endif %}$|$ \emph{ {{ proj.tech_stack[:6] | join(', ') }} }}{ {{ proj.archetype }} }
           \resumeItemListStart
             {% for bullet in proj.xyz_bullets[:4] %}
             \resumeItem{ {{ bullet }} }
