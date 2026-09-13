@@ -81,9 +81,9 @@
 
 %----------HEADING----------
 \begin{center}
-    \textbf{\Large \scshape {{ candidate.full_name if candidate else "SAHIL YADAV" }}} \\ \vspace{1pt}
-    \small {{ candidate.title if candidate and candidate.title else "AI Engineer · Agentic Systems & Model Inference Optimization" }} \\ \vspace{1pt}
-    \footnotesize {{ candidate.phone if candidate else "+91 8700122453" }} $|$ \href{mailto:{{ candidate.email if candidate else "sahillyaadav@gmail.com" }}}{\underline{ {{ candidate.email if candidate else "sahillyaadav@gmail.com" }} }}
+    \textbf{\Large \scshape {{ candidate.full_name if candidate else "FIRST LAST" }}} \\ \vspace{1pt}
+    \small {{ candidate.title if candidate and candidate.title else (jd_analysis.role_title if jd_analysis else "Software Engineer") }} \\ \vspace{1pt}
+    \footnotesize {{ candidate.phone if candidate else "+1 (555) 012-3456" }} $|$ \href{mailto:{{ candidate.email if candidate else "candidate@example.com" }}}{\underline{ {{ candidate.email if candidate else "candidate@example.com" }} }}
     {% if candidate and candidate.linkedin %} $|$ \href{https://{{ candidate.linkedin }}}{\underline{LinkedIn}} {% endif %}
     {% if candidate and candidate.github %} $|$ \href{https://{{ candidate.github }}}{\underline{GitHub}} {% endif %}
 \end{center}
@@ -121,10 +121,13 @@
 \section{Technical Skills}
  \begin{itemize}[leftmargin=0.15in, label={}]
     \small{\item{
-     \textbf{Languages \& Core}{: {{ jd_analysis.primary_languages | join(', ') }} } \\
-     \textbf{Inference Engines \& LLMs}{: {{ jd_analysis.frameworks | join(', ') }} } \\
-     \textbf{Distributed Systems \& Cloud}{: {{ (jd_analysis.databases_and_storage + jd_analysis.infrastructure_and_cloud) | join(', ') }} } \\
-     \textbf{Optimization \& Profiling}{: Model inference optimization, GPU benchmarking, Speculative decoding, KV-cache strategy, Quantization (AWQ/FP8), Continuous batching, Tensor \& pipeline parallelism, Memory bandwidth, API usage for LLMs }
+     {% if jd_analysis.primary_languages %}\textbf{Languages \& Core}{: {{ jd_analysis.primary_languages | join(', ') }} } \\{% endif %}
+     {% if jd_analysis.frameworks %}\textbf{Frameworks \& Engines}{: {{ jd_analysis.frameworks | join(', ') }} } \\{% endif %}
+     {% set cloud_systems = (jd_analysis.databases_and_storage + jd_analysis.infrastructure_and_cloud) %}
+     {% if cloud_systems %}\textbf{Distributed Systems \& Cloud}{: {{ cloud_systems | join(', ') }} } \\{% endif %}
+      {% if jd_analysis.target_keywords %}\textbf{Architecture \& Specializations}{: {{ jd_analysis.target_keywords[:10] | join(', ') }} } \\{% endif %}
+      {% set soft_skills_list = jd_analysis.soft_skills if (jd_analysis.soft_skills and jd_analysis.soft_skills | length > 0) else ["Cross-Functional Collaboration", "High Ownership & Craft", "First-Principles Problem Solving", "Fast Prototyping", "Root Cause Analysis"] %}
+      \textbf{Professional \& Soft Skills}{: {{ soft_skills_list | join(', ') }} }
     }}
  \end{itemize}
 \vspace{-6pt}
