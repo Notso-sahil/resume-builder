@@ -1,4 +1,4 @@
-﻿<div align="center">
+<div align="center">
 
 # AntiGravity Autonomous Resume Engine 🚀
 
@@ -29,6 +29,7 @@
 - **🛡️ Evaluator-Optimizer Critique Loop**:
   - Deterministic ATS keyword scoring targeting $\ge 85\%$ match rate.
   - Plausibility & hardware bound enforcement (20%–60% compute/cost reductions, realistic latency numbers, no impossible hardware claims).
+- **💼 Job-Aligned Experience Tailoring**: Dynamically refines work experience bullets to highlight keywords, metrics, and systems requested by the target company while preserving 100% of the candidate's genuine accomplishments and factual truth.
 - **📄 Clean Single-Format Export**: Generates **only** the requested format (silent **PDF default**, or `.docx`, or `.tex`) with **zero duplicate files**.
 - **📁 Non-Destructive Archival**: Automatically moves prior generation outputs to `output/old/` so historical resumes and dossiers are permanently preserved.
 - **🎙️ Interview Defense Dossier**: Generates `<company>_ques.md` containing architectural trade-offs ("Why not alternative X?"), failure mode analyses, and 5 probing technical questions with model answers.
@@ -112,14 +113,14 @@ python main.py
 ### Non-Interactive Company Target
 Target a pre-configured job in `jobs/<company>.json`:
 ```bash
-python main.py --job naive
+python main.py --job sample_job
 ```
 
 ### Specify Output Format
 Generate `.docx` or Jake's Resume `.tex` source instead of PDF:
 ```bash
-python main.py --job naive --format docx
-python main.py --job naive --format latex
+python main.py --job sample_job --format docx
+python main.py --job sample_job --format latex
 ```
 
 ### Provide Custom Job Description via File
