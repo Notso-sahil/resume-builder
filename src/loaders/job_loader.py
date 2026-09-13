@@ -1,4 +1,4 @@
-﻿import json
+import json
 from pathlib import Path
 from typing import List, Optional, Dict, Any
 
@@ -9,16 +9,11 @@ from src.schemas.models import (
     FailureModeAnalysis,
 )
 
-# Root directory for pre-configured job files
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 JOBS_DIR = PROJECT_ROOT / "jobs"
 
 
 def list_available_jobs() -> List[Dict[str, Any]]:
-    """
-    Returns a list of available pre-configured jobs in the jobs/ directory.
-    Each entry is a dict: {slug, company_name, role_title, path}
-    """
     if not JOBS_DIR.exists():
         return []
 
@@ -39,18 +34,6 @@ def list_available_jobs() -> List[Dict[str, Any]]:
 
 
 def load_job_config(job_identifier: str | Path) -> Dict[str, Any]:
-    """
-    Loads and validates a job configuration file.
-    `job_identifier` can be a Path, a file name, a company slug, or a company name.
-
-    Returns a dict containing:
-      - "jd_analysis": JDDeconstruction
-      - "tailored_summary_override": Optional[str]
-      - "fallback_projects": Optional[List[ProjectSpec]]
-      - "job_slug": str
-      - "job_config_path": str
-      - "raw_config": dict
-    """
     target_path: Optional[Path] = None
 
     candidate_path = Path(job_identifier)
@@ -61,7 +44,6 @@ def load_job_config(job_identifier: str | Path) -> Dict[str, Any]:
     elif (JOBS_DIR / f"{job_identifier}.json").is_file():
         target_path = JOBS_DIR / f"{job_identifier}.json"
     else:
-        # Try matching by slug or company_name in JOBS_DIR
         for item in list_available_jobs():
             if (
                 item["slug"].lower() == str(job_identifier).strip().lower()
@@ -78,7 +60,6 @@ def load_job_config(job_identifier: str | Path) -> Dict[str, Any]:
     with open(target_path, "r", encoding="utf-8-sig") as f:
         data = json.load(f)
 
-    # 1. Parse JDDeconstruction
     jd_analysis = JDDeconstruction(
         company_name=data.get("company_name", target_path.stem.capitalize()),
         role_title=data.get("role_title", "Software Engineer"),
@@ -90,15 +71,14 @@ def load_job_config(job_identifier: str | Path) -> Dict[str, Any]:
         infrastructure_and_cloud=data.get("infrastructure_and_cloud", []),
         core_engineering_challenges=data.get("core_engineering_challenges", []),
         target_keywords=data.get("target_keywords", []),
+        soft_skills=data.get("soft_skills", []),
     )
 
-    # 2. Parse fallback_projects if provided
     fallback_projects: Optional[List[ProjectSpec]] = None
     if "fallback_projects" in data and data["fallback_projects"]:
         parsed_projects = []
         for p in data["fallback_projects"]:
             if isinstance(p, dict):
-                # Ensure trade_offs and failure_modes are typed
                 trade_offs = [
                     ArchitecturalTradeOff(**t) if isinstance(t, dict) else t
                     for t in p.get("trade_offs", [])
@@ -118,6 +98,7 @@ def load_job_config(job_identifier: str | Path) -> Dict[str, Any]:
     return {
         "jd_analysis": jd_analysis,
         "tailored_summary_override": data.get("tailored_summary_override"),
+        "experience_override": data.get("experience_override"),
         "fallback_projects": fallback_projects,
         "job_slug": target_path.stem,
         "job_config_path": str(target_path),
