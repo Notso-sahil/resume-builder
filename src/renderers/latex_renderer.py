@@ -61,7 +61,9 @@ def render_latex(
         sanitized_candidate.full_name = escape_latex(sanitized_candidate.full_name)
         sanitized_candidate.title = escape_latex(sanitized_candidate.title)
         sanitized_candidate.professional_objective = escape_latex(sanitized_candidate.professional_objective)
-        if sanitized_candidate.tailored_summary:
+        if portfolio.tailored_summary:
+            sanitized_candidate.tailored_summary = escape_latex(portfolio.tailored_summary)
+        elif sanitized_candidate.tailored_summary:
             sanitized_candidate.tailored_summary = escape_latex(sanitized_candidate.tailored_summary)
         for edu in sanitized_candidate.education:
             edu.degree = escape_latex(edu.degree)
@@ -83,6 +85,7 @@ def render_latex(
         candidate=sanitized_candidate,
         projects=sanitized_projects,
         jd_analysis=portfolio.jd_analysis,
+        portfolio=portfolio,
     )
 
     out = Path(output_path)
