@@ -82,6 +82,7 @@ class ProjectSpec(BaseModel):
     tech_stack: List[str]
     core_bottleneck: str
     technical_solution: str
+    live_link: Optional[str] = None
     quantified_impact_metrics: List[str]
     trade_offs: List[ArchitecturalTradeOff]
     failure_modes: List[FailureModeAnalysis]

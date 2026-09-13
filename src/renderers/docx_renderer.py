@@ -204,6 +204,14 @@ def render_docx(
         run_pname.font.size = Pt(9.5)
         run_pname.font.name = "Calibri"
 
+        if getattr(proj, "live_link", None):
+            run_link = p_proj.add_run(f"  |  [Live: {proj.live_link}]")
+            run_link.font.size = Pt(8.5)
+            run_link.font.name = "Calibri"
+            # Optional: Make it look like a link
+            run_link.font.color.rgb = RGBColor(0, 0, 255)
+            run_link.underline = True
+
         stack_text = "  |  " + ", ".join(proj.tech_stack[:6])
         run_pstack = p_proj.add_run(stack_text)
         run_pstack.italic = True
