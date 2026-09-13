@@ -26,15 +26,11 @@ class AntiGravityLLM:
 
     def invoke(self, input_prompt, **kwargs):
         """Invoke LLM on a text or message input."""
-        # Check if structured output was requested via with_structured_output wrapper
         if hasattr(self, "_structured_schema") and self._structured_schema is not None:
             schema = self._structured_schema
-            # If Google or OpenAI key happens to be set elsewhere or local LS available
-            # otherwise generate schema-compliant structure
             return self._generate_structured(input_prompt, schema)
 
         prompt_text = str(input_prompt)
-        # Attempt to leverage native AntiGravity CLI/LS if available or high-fidelity synthesis
         return f"[AntiGravity Engine Response for: {prompt_text[:100]}...]"
 
     def with_structured_output(self, schema):
@@ -51,7 +47,6 @@ class AntiGravityLLM:
 
     def _generate_structured(self, prompt: str, schema):
         """Generates a structured Pydantic object compliant with schema."""
-        # If gemini api key or vertex / google genai exists in environment, we use it directly:
         gemini_key = os.getenv("GEMINI_API_KEY")
         if gemini_key:
             try:
@@ -70,7 +65,6 @@ class AntiGravityLLM:
             except Exception:
                 pass
 
-        # Native fallback synthesis logic for local / offline AntiGravity testing
         from src.prompts.synthesis_prompts import fallback_synthesize
         return fallback_synthesize(prompt, schema)
 
@@ -98,5 +92,4 @@ def get_llm():
         except Exception:
             pass
 
-    # Default: AntiGravity native model
     return AntiGravityLLM()
