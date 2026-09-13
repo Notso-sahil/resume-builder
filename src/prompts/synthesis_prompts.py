@@ -211,7 +211,7 @@ def build_synthesis_prompt(jd_analysis: "JDDeconstruction", critique_history: st
 # ---------------------------------------------------------------------------
 
 SUMMARY_SYNTHESIS_PROMPT = """You are a Principal Technical Resume Strategist.
-Synthesize a punchy, high-impact Professional Summary (strictly 2-3 sentences, 45-60 words) for a strict 1-page technical resume.
+Synthesize a punchy, high-impact Professional Summary (strictly 3-4 sentences, 65-90 words) for a technical resume.
 
 INVARIANTS:
 1. Retain core factual accomplishments and background from the candidate's uploaded resume:
@@ -220,7 +220,7 @@ INVARIANTS:
    Target Role: {role_title}
    Domain: {domain}
    Target Technologies: {target_keywords}
-3. Strictly 2-3 sentences, maximum 65 words. No fluff.
+3. Strictly 3-4 sentences, maximum 90 words. Include a sentence highlighting a major real project from the candidate's background if relevant (e.g., CampusHub or Synapse). End with an explicit call-out to the target role and company. No fluff.
 """
 
 
@@ -257,13 +257,25 @@ def synthesize_tailored_summary(
 
     # Deterministic fallback synthesis blending candidate profile + target JD
     role_term = jd_analysis.role_title if jd_analysis else "AI Systems Engineer"
+    company_term = getattr(jd_analysis, "company_name", "your company") or "your company"
     frameworks = jd_analysis.frameworks[:3] if jd_analysis and jd_analysis.frameworks else ["Python", "PyTorch"]
     primary_stack = ", ".join(frameworks)
-    raw_snippet = " ".join(raw_objective.split()[:25]) if raw_objective else "Systems engineer passionate about scalable architectures"
+    
+    # Check for real projects in objective
+    obj_lower = (raw_objective or "").lower()
+    real_project_callout = ""
+    if "synapse" in obj_lower:
+        real_project_callout = " Architected Synapse, an asynchronous agentic backend integrating vector databases and prompt engineering for real-world document intelligence."
+    elif "campushub" in obj_lower or "campus-zenith" in obj_lower:
+        real_project_callout = " Architected CampusHub, a full-stack web platform optimizing student workflows through responsive frontend interfaces and scalable backend APIs."
+
+    raw_snippet = " ".join(raw_objective.split()[:25]) if raw_objective else "Systems engineer with proven end-to-end experience building applications at production scale"
+    raw_snippet = raw_snippet.rstrip('.')
 
     return (
-        f"{raw_snippet.rstrip('.')}. Specializing in {primary_stack} with a focus on scalable systems. "
-        f"Seeking an {role_term} role to research, benchmark, and deploy high-performance infrastructure."
+        f"{raw_snippet}. Experienced delivering software projects in teams using {primary_stack} with a focus on reliability, "
+        f"performance optimization, and observability.{real_project_callout} Seeking a {role_term} role to build and evaluate systems "
+        f"that improve the availability and performance of {company_term} products at scale."
     )
 
 
@@ -320,7 +332,8 @@ def build_fallback_projects(jd_analysis: "JDDeconstruction") -> list:
     # -----------------------------------------------------------------------
 
     def _core_domain() -> ProjectSpec:
-        title = f"{company} {role.split()[0]} Platform"
+        names = ["FlowBridge", "StackEdge", "NexusCore", "PulseAPI", "VectorCore"]
+        title = names[hash(company + role) % len(names)]
         arch_label = ARCHETYPE_REGISTRY["core_domain"]["label"]
         return ProjectSpec(
             project_title=title,
@@ -430,7 +443,7 @@ def build_fallback_projects(jd_analysis: "JDDeconstruction") -> list:
             fw1
         )
         return ProjectSpec(
-            project_title=f"Unified {domain.split('/')[0].strip()} Web Portal",
+            project_title="CampusHub",
             archetype=ARCHETYPE_REGISTRY["web_fullstack"]["label"],
             high_level_architecture=(
                 f"Full-stack web application with a {fe_fw} SPA frontend and {be_fw} REST API backend, "
@@ -442,6 +455,7 @@ def build_fallback_projects(jd_analysis: "JDDeconstruction") -> list:
                 f"Implemented server-side rendering (SSR) with {fe_fw} and lazy-loaded route chunks "
                 f"to reduce initial page load, combined with {db1} query caching for repeated reads."
             ),
+            live_link="https://campus-zenith.vercel.app",
             quantified_impact_metrics=[
                 "Reduced page LCP (Largest Contentful Paint) by 52% (4.1s to 1.97s)",
                 "Increased active user session retention by 31% post-optimization",
@@ -531,8 +545,10 @@ def build_fallback_projects(jd_analysis: "JDDeconstruction") -> list:
     def _distributed_systems() -> ProjectSpec:
         queue = next((d for d in dbs if any(w in d.lower() for w in ["kafka", "rabbit", "sqs", "pubsub"])), "Kafka")
         cache = next((d for d in dbs if any(w in d.lower() for w in ["redis", "memcached"])), "Redis")
+        names = ["StreamCore", "FluxEngine", "GridPulse", "ScaleForge"]
+        title = names[hash(kw1) % len(names)]
         return ProjectSpec(
-            project_title=f"Distributed {kw1} Processing Engine",
+            project_title=title,
             archetype=ARCHETYPE_REGISTRY["distributed_systems"]["label"],
             high_level_architecture=(
                 f"Horizontally scalable event-driven microservice system using {queue} for async task dispatch, "

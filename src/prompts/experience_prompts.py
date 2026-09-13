@@ -91,8 +91,8 @@ def _blend_ifso_experience(
     # Bullet 2: Code Quality / Review / Multi-language Pattern Analysis
     if is_web_or_saas:
         b2 = (
-            f"Implemented multi-language static analysis engines in Python (targeting Java, C++, JavaScript) to detect "
-            f"hardcoded secrets, insecure endpoints, and logic defects across 20,000+ binaries, achieving 98.6% precision."
+            f"Implemented multi-language static analysis engines (Java, C++, JavaScript) to detect hardcoded secrets "
+            f"and insecure endpoints, integrating automated code reviews that caught 98.6% of defects pre-production."
         )
     elif is_llm_or_eval:
         b2 = (
