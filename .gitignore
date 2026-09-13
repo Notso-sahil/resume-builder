@@ -43,8 +43,9 @@ output/
 .coverage
 htmlcov/
 
-# Job configurations (local user data)
-jobs/
+# Job configurations (local user data, retain starter sample)
+jobs/*
+!jobs/sample_job.json
 
 # Candidate personal resume PDFs & inputs
 *.pdf
