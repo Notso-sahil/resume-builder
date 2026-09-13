@@ -29,7 +29,7 @@ def render_docx(
     Order:
       1. Header (Name, Title, Contact)
       2. Professional Summary (tailored, blending background + JD)
-      3. Experience (AI Research Intern at IFSO, Delhi Police)
+      3. Experience (AI Intern at IFSO, Delhi Police)
       4. Technical Skills (categorized, placed before projects)
       5. Technical Projects (3 archetypes, rich Google XYZ bullets)
       6. Education (placed at bottom)
@@ -40,17 +40,17 @@ def render_docx(
 
     # 1. Page Margins calibrated to completely fill exactly 1 full letter page
     for section in doc.sections:
-        section.top_margin = Inches(0.33)
-        section.bottom_margin = Inches(0.3)
-        section.left_margin = Inches(0.4)
-        section.right_margin = Inches(0.4)
+        section.top_margin = Inches(0.28)
+        section.bottom_margin = Inches(0.25)
+        section.left_margin = Inches(0.38)
+        section.right_margin = Inches(0.38)
 
     # 2. Candidate Header
     name = candidate.full_name if candidate else "CANDIDATE NAME"
     title = candidate.title if candidate and candidate.title else (
         portfolio.jd_analysis.role_title if portfolio.jd_analysis else "AI Systems Engineer"
     )
-    phone = candidate.phone if candidate else "+91 8700122453"
+    phone = candidate.phone if candidate else "+1 (555) 012-3456"
     email = candidate.email if candidate else "candidate@example.com"
     linkedin = candidate.linkedin if candidate else None
     github = candidate.github if candidate else None
@@ -93,8 +93,8 @@ def render_docx(
     # Section Header Helper
     def add_section_header(title_text: str):
         p = doc.add_paragraph()
-        p.paragraph_format.space_before = Pt(3)
-        p.paragraph_format.space_after = Pt(1)
+        p.paragraph_format.space_before = Pt(2)
+        p.paragraph_format.space_after = Pt(0.5)
         run = p.add_run(title_text.upper())
         run.bold = True
         run.font.size = Pt(9.5)
@@ -105,16 +105,16 @@ def render_docx(
 
     # 3. Professional Summary (dynamically tailored)
     summary_text = (
-        (candidate.tailored_summary if candidate else None)
-        or portfolio.tailored_summary
+        portfolio.tailored_summary
+        or (candidate.tailored_summary if candidate else None)
         or (candidate.professional_objective if candidate else None)
     )
     if summary_text:
         add_section_header("Professional Summary")
         p_obj = doc.add_paragraph()
-        p_obj.paragraph_format.space_before = Pt(1)
-        p_obj.paragraph_format.space_after = Pt(3)
-        p_obj.paragraph_format.line_spacing = 1.1
+        p_obj.paragraph_format.space_before = Pt(0.5)
+        p_obj.paragraph_format.space_after = Pt(1.5)
+        p_obj.paragraph_format.line_spacing = 1.05
         run_obj = p_obj.add_run(summary_text)
         run_obj.font.size = Pt(8.5)
         run_obj.font.name = "Calibri"
@@ -152,9 +152,9 @@ def render_docx(
 
             for b in exp.bullets:
                 p_b = doc.add_paragraph(style="List Bullet")
-                p_b.paragraph_format.space_before = Pt(0.5)
-                p_b.paragraph_format.space_after = Pt(1)
-                p_b.paragraph_format.line_spacing = 1.1
+                p_b.paragraph_format.space_before = Pt(0)
+                p_b.paragraph_format.space_after = Pt(0.5)
+                p_b.paragraph_format.line_spacing = 1.05
                 run_b = p_b.add_run(b)
                 run_b.font.size = Pt(8.5)
                 run_b.font.name = "Calibri"
@@ -167,9 +167,9 @@ def render_docx(
         def add_skill_line(label: str, items: list):
             if items:
                 p = doc.add_paragraph()
-                p.paragraph_format.space_before = Pt(0.5)
-                p.paragraph_format.space_after = Pt(1)
-                p.paragraph_format.line_spacing = 1.05
+                p.paragraph_format.space_before = Pt(0)
+                p.paragraph_format.space_after = Pt(0.5)
+                p.paragraph_format.line_spacing = 1.02
                 r_lbl = p.add_run(f"{label}: ")
                 r_lbl.bold = True
                 r_lbl.font.size = Pt(8.5)
@@ -179,14 +179,18 @@ def render_docx(
                 r_val.font.name = "Calibri"
 
         add_skill_line("Languages & Core", jd.primary_languages)
-        add_skill_line("Inference Engines & LLMs", jd.frameworks)
+        add_skill_line("Frameworks & Engines", jd.frameworks)
         add_skill_line("Distributed Systems & Cloud", jd.databases_and_storage + jd.infrastructure_and_cloud)
-        opt_skills = [
-            "Model inference optimization", "GPU benchmarking", "Speculative decoding",
-            "KV-cache strategy", "Quantization (AWQ/FP8)", "Continuous batching",
-            "Tensor & pipeline parallelism", "Memory bandwidth", "API usage for LLMs"
+        if jd.target_keywords:
+            add_skill_line("Architecture & Specializations", jd.target_keywords[:10])
+        soft_skills_list = getattr(jd, "soft_skills", None) or [
+            "Cross-Functional Collaboration",
+            "High Ownership & Craft",
+            "First-Principles Problem Solving",
+            "Fast Prototyping",
+            "Root Cause Analysis",
         ]
-        add_skill_line("Optimization & Profiling", opt_skills)
+        add_skill_line("Professional & Soft Skills", soft_skills_list)
 
     # 6. Technical Projects (3 projects, high-impact XYZ bullets)
     add_section_header("Technical Projects")
@@ -213,7 +217,7 @@ def render_docx(
             p_bullet = doc.add_paragraph(style="List Bullet")
             p_bullet.paragraph_format.space_before = Pt(0)
             p_bullet.paragraph_format.space_after = Pt(0.5)
-            p_bullet.paragraph_format.line_spacing = 1.05
+            p_bullet.paragraph_format.line_spacing = 1.02
             run_b = p_bullet.add_run(bullet)
             run_b.font.size = Pt(8.5)
             run_b.font.name = "Calibri"
@@ -223,8 +227,8 @@ def render_docx(
         add_section_header("Education")
         for edu in candidate.education:
             p_edu = doc.add_paragraph()
-            p_edu.paragraph_format.space_before = Pt(1)
-            p_edu.paragraph_format.space_after = Pt(1)
+            p_edu.paragraph_format.space_before = Pt(0.5)
+            p_edu.paragraph_format.space_after = Pt(0.5)
 
             run_deg = p_edu.add_run(edu.degree)
             run_deg.bold = True
@@ -239,7 +243,7 @@ def render_docx(
 
             p_inst = doc.add_paragraph()
             p_inst.paragraph_format.space_before = Pt(0)
-            p_inst.paragraph_format.space_after = Pt(2)
+            p_inst.paragraph_format.space_after = Pt(0.5)
             inst_text = edu.institution
             if edu.details:
                 inst_text += f"   |   {edu.details}"
