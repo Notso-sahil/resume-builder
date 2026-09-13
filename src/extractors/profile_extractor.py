@@ -1,4 +1,4 @@
-﻿import json
+import json
 import re
 from pathlib import Path
 from typing import Optional
@@ -10,18 +10,26 @@ from src.schemas.models import CandidateProfile, EducationEntry, ExperienceEntry
 CACHE_PATH = OUTPUT_DIR / "candidate_profile.json"
 
 
+SECTION_LOOKAHEAD = r"(?=\n\s*(?:EDUCATION|TECHNICAL SKILLS|SKILLS|PROJECTS|ENGINEERING PROJECTS|EXPERIENCE|WORK EXPERIENCE|PROFESSIONAL EXPERIENCE|PUBLICATIONS|CERTIFICATIONS|AWARDS|LANGUAGES|ACHIEVEMENTS)\b|\Z)"
+
+
 def clean_unicode_text(text: str) -> str:
     """Normalizes non-standard typography/dashes/bullets commonly extracted from PDFs."""
     replacements = {
-        "\ufffd": " Â· ",
-        "\u2013": "-",
-        "\u2014": "--",
+        "\ufffd": " · ",
+        "\u2013": "–",
+        "\u2014": "—",
         "\u2018": "'",
         "\u2019": "'",
         "\u201c": '"',
         "\u201d": '"',
-        "\u2022": "â€¢",
-        "\u00b7": "Â·",
+        "\u2022": "•",
+        "\u00b7": "·",
+        "â€¢": "•",
+        "Â·": "·",
+        "â€“": "–",
+        "â€”": "—",
+        "â†’": "->",
     }
     for bad, good in replacements.items():
         text = text.replace(bad, good)
@@ -42,8 +50,9 @@ def extract_raw_text(pdf_path: str | Path) -> str:
 def parse_profile_deterministic(text: str) -> CandidateProfile:
     """
     High-accuracy deterministic parser for resumes when LLM is in offline mode or as fallback.
-    Extracts name, headline, phone, email, links, objective, and education.
+    Extracts name, headline, phone, email, links, objective, education, and experience.
     """
+    text = clean_unicode_text(text)
     lines = [line.strip() for line in text.splitlines() if line.strip()]
     full_name = lines[0] if lines else "Candidate"
     title = lines[1] if len(lines) > 1 else "Software Engineer"
@@ -67,7 +76,7 @@ def parse_profile_deterministic(text: str) -> CandidateProfile:
     # Extract Objective / Summary
     objective = ""
     obj_match = re.search(
-        r"(?:PROFESSIONAL OBJECTIVE|SUMMARY|PROFILE|OBJECTIVE)\s*\n+(.*?)(?=\n+[A-Z\s]{4,}\n|\Z)",
+        r"(?:PROFESSIONAL OBJECTIVE|SUMMARY|PROFILE|OBJECTIVE)\s*\n+(.*?)" + SECTION_LOOKAHEAD,
         text,
         re.DOTALL | re.IGNORECASE,
     )
@@ -81,7 +90,7 @@ def parse_profile_deterministic(text: str) -> CandidateProfile:
     # Extract Education
     education_entries = []
     edu_match = re.search(
-        r"(?:EDUCATION)\s*\n+(.*?)(?=\n+[A-Z\s]{4,}\n|\Z)",
+        r"(?:EDUCATION)\s*\n+(.*?)" + SECTION_LOOKAHEAD,
         text,
         re.DOTALL | re.IGNORECASE,
     )
@@ -90,16 +99,19 @@ def parse_profile_deterministic(text: str) -> CandidateProfile:
         edu_lines = [l.strip() for l in edu_text.splitlines() if l.strip()]
         if edu_lines:
             degree_line = edu_lines[0]
-            year_match = re.search(r"\b(20\d\d\s*[-â€“â€”]\s*(?:20\d\d|Present|Expected|\(Expected\))|\d{4})\b", degree_line)
-            year_range = year_match.group(0) if year_match else "2024 â€“ 2028 (Expected)"
-            clean_degree = re.sub(r"\b(20\d\d\s*[-â€“â€”]\s*(?:20\d\d|Present|Expected|\(Expected\))|\d{4})\b", "", degree_line).strip()
+            year_match = re.search(r"\b(20\d\d\s*[-–—]\s*(?:20\d\d|Present|Expected|\(Expected\))|\d{4})\b", degree_line)
+            year_range = year_match.group(0) if year_match else "2020 – 2024"
+            clean_degree = re.sub(r"\b(20\d\d\s*[-–—]\s*(?:20\d\d|Present|Expected|\(Expected\))|\d{4})\b", "", degree_line).strip()
 
             institution = edu_lines[1] if len(edu_lines) > 1 else "University"
             details = None
-            if "Â·" in institution:
-                parts = institution.split("Â·")
+            if "·" in institution:
+                parts = institution.split("·")
                 institution = parts[0].strip()
                 details = parts[1].strip()
+
+            if details:
+                details = re.sub(r"\b2nd\s*Year\b", "3rd Year", details, flags=re.IGNORECASE)
 
             education_entries.append(
                 EducationEntry(
@@ -113,9 +125,9 @@ def parse_profile_deterministic(text: str) -> CandidateProfile:
     if not education_entries:
         education_entries.append(
             EducationEntry(
-                degree="B.Tech in Computer Science / AI",
+                degree="B.S. in Computer Science",
                 institution="University",
-                year_range="2024 â€“ 2028 (Expected)",
+                year_range="2020 – 2024",
                 details="Undergraduate",
             )
         )
@@ -123,7 +135,7 @@ def parse_profile_deterministic(text: str) -> CandidateProfile:
     # Extract Experience if an EXPERIENCE section exists
     experience_entries = []
     exp_match = re.search(
-        r"(?:EXPERIENCE|WORK EXPERIENCE|PROFESSIONAL EXPERIENCE)\s*\n(.*?)(?=\n[A-Z\s]{4,}|\Z)",
+        r"(?:EXPERIENCE|WORK EXPERIENCE|PROFESSIONAL EXPERIENCE)\s*\n+(.*?)" + SECTION_LOOKAHEAD,
         text,
         re.DOTALL | re.IGNORECASE,
     )
@@ -144,9 +156,9 @@ def parse_profile_deterministic(text: str) -> CandidateProfile:
                 org = parts[1].strip()
 
             bullets = [
-                l.lstrip("â€¢-* ").strip()
+                l.lstrip("•-*· ").strip()
                 for l in exp_lines[1:]
-                if l.startswith(("â€¢", "-", "*")) or len(l) > 30
+                if l.startswith(("•", "-", "*", "·")) or len(l) > 30
             ][:3]
             experience_entries.append(
                 ExperienceEntry(
@@ -196,9 +208,14 @@ def extract_profile_from_pdf(pdf_path: str | Path) -> CandidateProfile:
             )
             result = structured_llm.invoke(prompt)
             if isinstance(result, CandidateProfile):
-                return result
+                profile = result
             elif isinstance(result, dict):
-                return CandidateProfile(**result)
+                profile = CandidateProfile(**result)
+            if profile:
+                for edu in profile.education:
+                    if edu.details:
+                        edu.details = re.sub(r"\b2nd\s*Year\b", "3rd Year", edu.details, flags=re.IGNORECASE)
+                return profile
     except Exception:
         pass
 
@@ -234,7 +251,11 @@ def load_or_extract_profile(pdf_path: str | Path | None) -> Optional[CandidatePr
         try:
             with open(CACHE_PATH, "r", encoding="utf-8-sig") as f:
                 data = json.load(f)
-                return CandidateProfile(**data)
+                profile = CandidateProfile(**data)
+                for edu in profile.education:
+                    if edu.details:
+                        edu.details = re.sub(r"\b2nd\s*Year\b", "3rd Year", edu.details, flags=re.IGNORECASE)
+                return profile
         except Exception:
             pass
 
