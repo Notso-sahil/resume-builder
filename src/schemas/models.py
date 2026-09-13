@@ -7,13 +7,13 @@ from typing import List, Dict, Optional, Literal
 
 class EducationEntry(BaseModel):
     degree: str                  # e.g. "B.Tech — Artificial Intelligence & Machine Learning"
-    institution: str             # e.g. "Vivekananda Institute of Professional Studies (VIPS), New Delhi"
-    year_range: str              # e.g. "2024 – 2028 (Expected)"
-    details: Optional[str] = None  # e.g. "2nd Year"
+    institution: str             # e.g. "University / College"
+    year_range: str              # e.g. "2020 – 2024"
+    details: Optional[str] = None  # e.g. "Honors / Focus Area"
 
 class ExperienceEntry(BaseModel):
-    role: str                    # e.g. "AI Intern"
-    organization: str            # e.g. "IFSO, Delhi Police"
+    role: str                    # e.g. "Software Engineering Intern"
+    organization: str            # e.g. "Tech Systems Inc."
     period: str                  # e.g. "June - August"
     location: Optional[str] = None
     bullets: List[str] = Field(default_factory=list)
@@ -21,16 +21,16 @@ class ExperienceEntry(BaseModel):
 class CandidateProfile(BaseModel):
     """
     Extracted and enriched candidate profile.
-    Example (Sahil Yadav):
-      full_name              = "Sahil Yadav"
-      title                  = "AI Engineer · Agentic Systems & GenAI Backend Development"
-      phone                  = "+91 8700122453"
-      email                  = "sahillyaadav@gmail.com"
-      linkedin               = "linkedin.com/in/sahil-yadav-1ab468249"
-      github                 = "github.com/Notso-sahil"
-      professional_objective = "Full-Stack Engineer and B.Tech AIML student..."
+    Example:
+      full_name              = "Jane Doe"
+      title                  = "AI Systems Engineer"
+      phone                  = "+1 (555) 012-3456"
+      email                  = "jane.doe@example.com"
+      linkedin               = "linkedin.com/in/janedoe"
+      github                 = "github.com/janedoe"
+      professional_objective = "Systems engineer specializing in distributed architectures..."
       education              = [EducationEntry(...)]
-      experience             = [ExperienceEntry(role="AI Intern", organization="IFSO, Delhi Police", period="June - August")]
+      experience             = [ExperienceEntry(role="AI Engineering Intern", organization="Tech Systems Inc.", period="June - August")]
     """
     full_name: str
     title: str                           # professional headline from resume header
@@ -58,6 +58,7 @@ class JDDeconstruction(BaseModel):
     infrastructure_and_cloud: List[str]
     core_engineering_challenges: List[str]
     target_keywords: List[str]
+    soft_skills: Optional[List[str]] = Field(default_factory=list)
 
 # ---------------------------------------------------------------------------
 # Project & Architecture Specs
