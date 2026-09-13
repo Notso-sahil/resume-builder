@@ -1,4 +1,4 @@
-﻿# AntiGravity Resume Engine — Agent Directives & Operational Guide
+# AntiGravity Resume Engine — Agent Directives & Operational Guide
 
 > [!IMPORTANT]
 > **TOKEN-SAVER DIRECTIVE FOR AGENTS:**
@@ -32,13 +32,29 @@ When the user provides a Job Description (JD) or company name:
   ],
   "target_keywords": [
     "Python", "PyTorch", "vLLM", "LangGraph", "CUDA", "FastAPI", "Docker", "RAG",
-    "Speculative Decoding", "Continuous Batching", "KV-Cache", "Distributed Systems"
+    "Speculative Decoding", "Continuous Batching", "KV-Cache", "Distributed Systems",
+    "Advanced System Design", "Microservices", "Observability", "Performance Tuning"
   ],
-  "tailored_summary_override": "High-impact 2-3 sentence tailored summary blending candidate background with the target role.",
-  "fallback_projects": null
+  "tailored_summary_override": "High-impact 3-4 sentence tailored summary blending candidate background with the target role.",
+  "fallback_projects": [
+    {
+      "project_title": "Custom Project 1",
+      "archetype": "Core Domain",
+      "high_level_architecture": "...",
+      "tech_stack": ["Python", "PyTorch", "vLLM"],
+      "core_bottleneck": "...",
+      "technical_solution": "...",
+      "live_link": null,
+      "quantified_impact_metrics": ["..."],
+      "trade_offs": [],
+      "failure_modes": [],
+      "xyz_bullets": ["(Must have 4-5 dense, metric-driven bullets focusing strictly on the JD)"],
+      "interview_defense_qna": []
+    }
+  ]
 }
 ```
-*(Note: `fallback_projects` can be `null` — the engine automatically synthesizes the 3 archetypes and XYZ bullets using the keywords and domain).*
+*(Note: **NEVER** set `fallback_projects` to `null`. You **MUST** strictly define 3 hyper-tailored, highly realistic custom projects in the `fallback_projects` array to perfectly match the company's core engineering challenges. Also, ensure `target_keywords` has at least 15+ keywords to maximize visual density on the page!)*
 
 ### Step 2: Execute the Pipeline via Terminal
 Run the command directly using your shell/command execution tool:
