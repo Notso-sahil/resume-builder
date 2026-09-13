@@ -54,7 +54,7 @@ def parse_cli_args():
         "--job",
         type=str,
         default=None,
-        help="Company name or slug of pre-configured job in jobs/ (e.g. naive, pindrop)",
+        help="Company name or slug of pre-configured job in jobs/ (e.g. sample_job, pindrop)",
     )
     parser.add_argument(
         "--jd",
@@ -92,7 +92,6 @@ def main():
                 console.print(f"  [dim]{edu.degree} | {edu.institution}[/dim]")
 
     if not candidate_profile:
-        # Check explicit resume argument
         if args.resume:
             resume_path = Path(args.resume)
             if resume_path.is_file():
@@ -102,7 +101,6 @@ def main():
                 console.print(f"[red]Error: Specified resume PDF not found at {resume_path}[/red]")
                 sys.exit(1)
 
-        # Auto-discover PDFs in root
         if not candidate_profile:
             found_pdfs = find_candidate_resumes()
             if len(found_pdfs) == 1:
@@ -123,7 +121,6 @@ def main():
                 with console.status("[bold green]Extracting candidate profile...[/bold green]"):
                     candidate_profile = load_or_extract_profile(selected_pdf)
             else:
-                # Zero PDFs found and no cache
                 project_root = Path(__file__).resolve().parent
                 console.print("\n[bold red]✗ No candidate profile or resume PDF found.[/bold red]")
                 console.print("  [yellow]To fix this:[/yellow]")
@@ -143,7 +140,6 @@ def main():
     job_config = None
     raw_jd = ""
 
-    # Check if --job flag provided
     if args.job:
         try:
             job_config = load_job_config(args.job)
@@ -155,7 +151,6 @@ def main():
             console.print(f"[red]Error loading job config '{args.job}': {e}[/red]")
             sys.exit(1)
 
-    # Check if --jd file flag provided
     elif args.jd:
         jd_file = Path(args.jd)
         if jd_file.exists():
@@ -166,7 +161,6 @@ def main():
             console.print(f"[red]Error: JD file not found at {jd_file}[/red]")
             sys.exit(1)
 
-    # Interactive job selection
     else:
         available_jobs = list_available_jobs()
         if available_jobs:
@@ -182,7 +176,6 @@ def main():
 
             choice = Prompt.ask("\nSelect target job", choices=menu_choices, default="1")
             if choice == manual_key:
-                # Manual entry
                 raw_jd = ""
             else:
                 selected_job = available_jobs[int(choice) - 1]
@@ -229,7 +222,6 @@ def main():
         selected_fmt = args.format.lower()
         console.print(f"[green]✓ Format specified via CLI:[/green] [bold]{selected_fmt.upper()}[/bold]")
     else:
-        # Silent default is PDF without blocking prompt
         console.print("[green]✓ Format:[/green] [bold]PDF (default)[/bold]")
 
     output_format = OutputFormat(format=selected_fmt)
