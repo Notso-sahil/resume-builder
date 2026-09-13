@@ -95,10 +95,9 @@ def check_stack_cohesion(projects: List[ProjectSpec]) -> Tuple[float, List[str]]
     if len(projects) != 3:
         issues.append(f"Expected exactly 3 projects, but found {len(projects)}.")
 
-    expected_archetypes = {"Core Domain", "Distributed Systems", "DevTools / Infra"}
-    missing = expected_archetypes - set(archetypes)
-    if missing:
-        issues.append(f"Missing mandatory project archetype(s): {missing}")
+    if len(set(archetypes)) < 3:
+        dupes = [a for a in set(archetypes) if archetypes.count(a) > 1]
+        issues.append(f"Duplicate archetype(s) detected: {dupes}. All 3 projects must have distinct archetypes.")
 
     score = 10.0 - (len(issues) * 2.0)
     return max(0.0, score), issues

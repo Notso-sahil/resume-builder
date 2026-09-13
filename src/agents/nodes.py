@@ -15,9 +15,11 @@ from src.schemas.models import (
 from src.agents.state import AgentState
 from src.prompts.extraction_prompts import JD_EXTRACTION_PROMPT
 from src.prompts.synthesis_prompts import (
-    PROJECT_SYNTHESIS_SYSTEM_PROMPT,
-    PROJECT_SYNTHESIS_USER_PROMPT,
+    build_synthesis_prompt,
+    build_fallback_projects,
     fallback_synthesize,
+    resolve_archetypes,
+    ARCHETYPE_REGISTRY,
 )
 from src.evaluators.sanity_checker import audit_portfolio
 
@@ -40,10 +42,21 @@ def deconstruct_jd_node(state: AgentState) -> Dict[str, Any]:
     Node 1: JD Deconstruction & Leveler.
     Extracts tech stack, implicit scale, seniority, and high-priority ATS keywords.
     """
+    DEFAULT_SOFT_SKILLS = [
+        "Cross-Functional Collaboration",
+        "High Ownership & Craft",
+        "First-Principles Problem Solving",
+        "Fast Prototyping",
+        "Root Cause Analysis",
+    ]
+
     # If a pre-configured job was provided in state, use it directly
     job_config = state.get("job_config")
     if job_config and "jd_analysis" in job_config:
-        return {"jd_analysis": job_config["jd_analysis"]}
+        jd_analysis = job_config["jd_analysis"]
+        if not getattr(jd_analysis, "soft_skills", None):
+            jd_analysis.soft_skills = DEFAULT_SOFT_SKILLS
+        return {"jd_analysis": jd_analysis}
 
     raw_jd = state.get("raw_jd", "")
     llm = get_llm()
@@ -55,19 +68,24 @@ def deconstruct_jd_node(state: AgentState) -> Dict[str, Any]:
             jd_analysis = structured_llm.invoke(prompt)
             if isinstance(jd_analysis, dict):
                 jd_analysis = JDDeconstruction(**jd_analysis)
+            if not getattr(jd_analysis, "soft_skills", None):
+                jd_analysis.soft_skills = DEFAULT_SOFT_SKILLS
             return {"jd_analysis": jd_analysis}
     except Exception:
         pass
 
     # Fallback/Native deconstruction
     fallback_analysis = fallback_synthesize(raw_jd, JDDeconstruction)
+    if not getattr(fallback_analysis, "soft_skills", None):
+        fallback_analysis.soft_skills = DEFAULT_SOFT_SKILLS
     return {"jd_analysis": fallback_analysis}
 
 
 def synthesize_projects_node(state: AgentState) -> Dict[str, Any]:
     """
     Node 2: Archetype Mapping & Cohesion Synthesis.
-    Generates the 3 project archetypes with deep architectural specs & XYZ bullets.
+    Resolves the best 3 project archetypes for the JD domain, then generates
+    deep architectural specs & XYZ bullets via LLM or JD-adaptive fallback.
     Incorporates critique history if self-correcting.
     """
     iteration_count = state.get("iteration_count", 0) + 1
@@ -82,10 +100,9 @@ def synthesize_projects_node(state: AgentState) -> Dict[str, Any]:
 
     jd_analysis = state.get("jd_analysis")
     critique_history = state.get("critique_history", [])
+    critiques_formatted = "\n".join(f"- {c}" for c in critique_history) if critique_history else "None (Initial iteration)"
 
     llm = get_llm()
-    jd_analysis_json = jd_analysis.model_dump_json(indent=2) if jd_analysis else "{}"
-    critiques_formatted = "\n".join(f"- {c}" for c in critique_history) if critique_history else "None (Initial iteration)"
 
     try:
         if hasattr(llm, "with_structured_output"):
@@ -94,11 +111,9 @@ def synthesize_projects_node(state: AgentState) -> Dict[str, Any]:
                 projects: List[ProjectSpec]
 
             structured_llm = llm.with_structured_output(ProjectsContainer)
-            prompt = f"{PROJECT_SYNTHESIS_SYSTEM_PROMPT}\n\n" + PROJECT_SYNTHESIS_USER_PROMPT.format(
-                jd_analysis_json=jd_analysis_json,
-                critique_history=critiques_formatted,
-            )
-            result = structured_llm.invoke(prompt)
+            # Build JD-aware dynamic prompt (resolves archetypes, injects JD stack)
+            full_prompt = build_synthesis_prompt(jd_analysis, critiques_formatted)
+            result = structured_llm.invoke(full_prompt)
             if hasattr(result, "projects") and len(result.projects) == 3:
                 return {
                     "candidate_projects": result.projects,
@@ -107,8 +122,8 @@ def synthesize_projects_node(state: AgentState) -> Dict[str, Any]:
     except Exception:
         pass
 
-    # Fallback/Native synthesis
-    fallback_projects = fallback_synthesize(jd_analysis_json, ProjectSpec)
+    # JD-adaptive fallback: builds domain-specific projects from JD stack
+    fallback_projects = build_fallback_projects(jd_analysis)
     return {
         "candidate_projects": fallback_projects,
         "iteration_count": iteration_count,
@@ -199,6 +214,8 @@ def generate_artifacts_node(state: AgentState) -> Dict[str, Any]:
     tailored_summary = None
     if candidate_profile:
         from src.prompts.synthesis_prompts import synthesize_tailored_summary
+        from src.prompts.experience_prompts import synthesize_tailored_experience
+
         job_config = state.get("job_config") or {}
         summary_override = job_config.get("tailored_summary_override")
         tailored_summary = synthesize_tailored_summary(
@@ -208,6 +225,15 @@ def generate_artifacts_node(state: AgentState) -> Dict[str, Any]:
             summary_override=summary_override,
         )
         candidate_profile.tailored_summary = tailored_summary
+
+        # Dynamically tailor work experience bullets to align with target JD
+        exp_override = job_config.get("experience_override")
+        candidate_profile.experience = synthesize_tailored_experience(
+            candidate_profile.experience,
+            jd_analysis,
+            llm=get_llm(),
+            experience_override=exp_override,
+        )
 
     # Assemble portfolio model
     portfolio = ResumeProjectPortfolio(
